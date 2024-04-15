@@ -6,42 +6,29 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     flatten = require('gulp-flatten');
 
-gulp.task('copy-components', function() {
-    return gulp.src(['src/components/**/!(*.js)*'])
-        .pipe(gulp.dest('./components'));
+/** @deprecated */
+gulp.task('build-css', function () {
+    return gulp
+        .src(['./components/lib/common/Common.css', './components/**/*.css'])
+        .pipe(concat('primevue.css'))
+        .pipe(gulp.dest('dist/resources'))
+        .pipe(uglifycss({ uglyComments: true }))
+        .pipe(rename('primevue.min.css'))
+        .pipe(gulp.dest('dist/resources'));
 });
 
-gulp.task('build-css', function() {
-    return gulp.src([
-        'src/components/common/Common.css',
-		'src/components/**/*.css'
-    ])
-	.pipe(concat('primevue.css'))
-	.pipe(gulp.dest('resources'))
-    .pipe(uglifycss({"uglyComments": true}))
-    .pipe(rename('primevue.min.css'))
-	.pipe(gulp.dest('resources'));
+gulp.task('build-primevuecss', function () {
+    return gulp.src(['./assets/styles/primevue.css']).pipe(concat('primevue.css')).pipe(gulp.dest('dist/resources')).pipe(rename('primevue.min.css')).pipe(gulp.dest('dist/resources'));
 });
 
-gulp.task('build-themes', function() {
-    return gulp.src([
-        'public/themes/**/*','!public/themes/soho-*/**/*',
-                        '!public/themes/mira/**/*', '!public/themes/nano/**/*'
-    ])
-    .pipe(gulp.dest('resources/themes'));
-})
-
-gulp.task('images', function() {
-    return gulp.src(['src/components/**/images/*.png', 'src/components/**/images/*.gif'])
-        .pipe(flatten())
-        .pipe(gulp.dest('resources/images'));
+gulp.task('build-themes', function () {
+    return gulp.src(['public/themes/**/*']).pipe(gulp.dest('dist/resources/themes'));
 });
 
-gulp.task('build-exports', function() {
-    return gulp.src(['exports/*.js','exports/*.d.ts'])
-        .pipe(gulp.dest('./'));
+/** @deprecated */
+gulp.task('images', function () {
+    return gulp.src(['./components/lib/**/images/*.png', './components/lib/**/images/*.gif']).pipe(flatten()).pipe(gulp.dest('dist/resources/images'));
 });
 
 //Building project with run sequence
-gulp.task('build-resources', ['build-css','images', 'build-themes']);
-
+gulp.task('build-styles', gulp.series('build-themes', 'build-primevuecss'));
